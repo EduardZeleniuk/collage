@@ -28,19 +28,28 @@
                         @endif
 
                         @if ($images)
-                            @forelse($images as $image)
+                            @foreach($images as $image)
                                 <div class="imgWrap">
                                     <button type="button" class="close" aria-label="Close">
                                         <a href="{{ url('image-delete/'.$image['id']) }}" class="fa fa-trash"></a>
                                     </button>
-                                    <img class="imgSideBar" src="{{ url('storage/images/'. $image['image']) }}">
+                                    @if ($layouts)
+                                        <div class="btns">
+                                            <div class="btn-group-toggle" data-toggle="buttons">
+
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <img class="imgSideBar" data-image="{{ $image['image'] }}" src="{{ url('storage/images/'. $image['image']) }}">
                                 </div>
                             @endforeach
                         @endif
                     </div>
                 </div>
             </div>
-            <div class="col-lg-10">content</div>
+            <div class="col-lg-10">
+                @include('partials.layoutCollage')
+            </div>
         </div>
     </div>
 

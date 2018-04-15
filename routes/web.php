@@ -14,11 +14,13 @@
 Auth::routes();
 
 
-Route::get('image-upload',['as'=>'image.upload','uses'=>'ImageUploadController@imageUpload']);
-Route::post('image-upload',['as'=>'image.upload.post','uses'=>'ImageUploadController@imageUploadPost']);
+Route::get('/',['as'=>'image.upload','uses'=>'ImageUploadController@imageUpload']);
+Route::post('/',['as'=>'image.upload.post','uses'=>'ImageUploadController@imageUploadPost']);
 Route::get('image-delete/{id}','ImageUploadController@imageDelete');
 Route::get('image-delete-all','ImageUploadController@imageDeleteAll');
+Route::get('create/{imgId}/{collage}/{position}','ImageUploadController@collageCreate');
+Route::get('collage-save/{collageId}','ImageUploadController@collageSave');
 Auth::routes();
 
 
-Route::get('/', 'HomeController@index');
+//Route::get('/', 'HomeController@index');

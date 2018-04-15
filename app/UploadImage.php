@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 class UploadImage extends Model
 {
-    public function user()
-    {
-        return $this->belongsTo('App\User');
-    }
-
     public static function allImages()
     {
         $images = [];

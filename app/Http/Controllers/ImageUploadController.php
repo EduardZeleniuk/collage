@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Layout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\UploadImage;
+use App\Collage;
+use Image;
 
 class ImageUploadController extends Controller
 {
@@ -15,14 +18,19 @@ class ImageUploadController extends Controller
 
     public function imageUpload()
     {
-//        $base = Image::make(storage_path('app/public/blog/Aa08TWeThAUukvmUUSlMWjJmai2NmwiOY0sHykuh.jpeg'));
-//        $base2= Image::make(storage_path('app/public/blog/etzOSop2asNUEgKzIj98fpr0ZMhjYPj2VJgMPVcF.jpeg'));
-//        var_dump($base);
-//        $base->insert($base2, 'bottom-right', 10, 10);
-//        $base->save(storage_path('app/public/blog/Aa08TWeThAUukvmUUSlMWjJmai2NmwiOY0sHykuh.jpeg'));
-
         $images = UploadImage::allImages();
-        return view('pages.imageUpload', ['images' => $images]);
+        $layouts = Layout::allImages();
+        $collages = Collage::allCollages();
+
+        $isSavedCollages = Collage::where('is_saved', 0)->get();
+
+        if($isSavedCollages) {
+            $isSavedCollages = $isSavedCollages;
+        } else {
+            $isSavedCollages = '';
+        }
+
+        return view('pages.imageUpload', ['images' => $images, 'layouts' => $layouts, 'collages' => $collages, 'isSavedCollages' => $isSavedCollages]);
     }
 
     public function imageUploadPost(Request $request)
@@ -62,12 +70,132 @@ class ImageUploadController extends Controller
         return back();
     }
 
-    public function collage()
+    public function collageCreate(Request $request, $image, $layout, $pos)
     {
-        $base = Image::make(storage_path('app/public/blog/9ssLY0erbCajkd7TBW7eT3Nn8ISgLaVyhQwpj46N.jpeg'));
-        $base2= Image::make(storage_path('app/public/blog/DQBGhgqLN5YovXItSJBW3FYiUSudCfqF40wWMM5s.jpeg'));
-        var_dump($base);
-        $base->insert($base2, 'bottom-right', 10, 10);
-        $base->save(storage_path('app/public/blog/9ssLY0erbCajkd7TBW7eT3Nn8ISgLaVyhQwpj46N.jpeg'));
+        if(!file_exists(storage_path('app/public/images/layouts/'. $layout .'.png')) AND !file_exists(storage_path('app/public/images/'. $image)))
+        {
+            abort(404);
+        }
+
+        $layout1 = [
+            '1' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 50,
+                'posY'   => 50
+            ],
+            '2' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 725,
+                'posY'   => 50
+            ],
+            '3' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 725,
+                'posY'   => 725
+            ],
+            '4' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 50,
+                'posY'   => 725
+            ]
+        ];
+        $layout2 = [
+            '1' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 50,
+                'posY'   => 50
+            ],
+            '2' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 50,
+                'posY'   => 725
+            ],
+            '3' => [
+                'height' => 1300,
+                'width'  => 625,
+                'posX'   => 725,
+                'posY'   => 50
+            ]
+        ];
+        $layout3 = [
+            '1' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 50,
+                'posY'   => 50
+            ],
+            '2' => [
+                'height' => 625,
+                'width'  => 625,
+                'posX'   => 725,
+                'posY'   => 50
+            ],
+            '3' => [
+                'height' => 625,
+                'width'  => 1300,
+                'posX'   => 50,
+                'posY'   => 725
+            ]
+        ];
+
+        if($layout == 'layout1')
+            $layoutName = $layout1;
+        elseif($layout == 'layout2')
+            $layoutName = $layout2;
+        elseif($layout == 'layout3')
+            $layoutName = $layout3;
+
+        $layoutsWidth  = $layoutName[$pos]['width'];
+        $layoutsHeight = $layoutName[$pos]['height'];
+        $layoutsPosX = $layoutName[$pos]['posX'];
+        $layoutsPosY = $layoutName[$pos]['posY'];
+
+        $layoutId = Layout::where('image', $layout)->first()->id;
+        $isSaved = Collage::where('is_saved', 0)->where('layout_id', $layoutId)->first();
+
+        if($isSaved) {
+            $collageName =  $isSaved->collage;
+            $collagePath = storage_path('app/public/images/collage/'. $isSaved->collage .'.jpeg');
+        } else {
+            $collageName = str_random(20);
+            $collagePath = storage_path('app/public/images/layouts/'. $layout .'.png');
+        }
+
+
+        $collage = Image::make($collagePath);
+        $img = Image::make(storage_path('app/public/images/'. $image));
+        $img->fit($layoutsWidth, $layoutsHeight);
+        $collage->insert($img, 'top-left', $layoutsPosX, $layoutsPosY);
+
+        $collage->save(storage_path('app/public/images/collage/'. $collageName .'.jpeg'));
+
+
+        if(!$isSaved) {
+            $collageDb = new Collage;
+            $collageDb->user_id = Auth::id();
+            $collageDb->layout_id = $layoutId;
+            $collageDb->collage = $collageName;
+            $collageDb->save();
+        }
+
+        return back();
+    }
+
+    public function collageSave($collageId)
+    {
+        $collageDb = Collage::where('id', $collageId)->first();
+        if(empty($collageDb))
+            return back()->with('errors', 'Ошибка при сохренении');
+
+        $collageDb->is_saved = 1;
+        $collageDb->save();
+
+        return back()->with('success', 'Сохранено');
     }
 }
