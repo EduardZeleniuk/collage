@@ -10,7 +10,8 @@ $(document).ready(function () {
 //---------Кастомный скролл бар----------
   function customScroll() {
     $(window).on("load", function () {
-      new SimpleBar($('.sideBarImgWrap')[0])
+      new SimpleBar($('.sideBarImgWrap')[0]);
+      new SimpleBar($('.sideBarImgWrap')[1]);
     });
   }
 
@@ -70,6 +71,15 @@ $(document).ready(function () {
     });
   }
 
+  //-----------collageDelete---------------
+  function collageDelete() {
+    $('.delete-collage').on('click', function() {
+      var collageId = $(this).closest('.collageContainer').find('img').data('collageid');
+      if(collageId)
+        document.location.href = 'collage-delete/' + collageId;
+    });
+  }
+
   setTimeout(function(){
     $('.alert.alert-success').fadeOut();
   }, 1500);
@@ -79,4 +89,5 @@ $(document).ready(function () {
   tabs();
   collageBtn();
   collageSave();
+  collageDelete();
 });

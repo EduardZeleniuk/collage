@@ -1,11 +1,26 @@
 html,
 body {
     width: 100%;
-    background: #ccc;
+    height: 100%;
+}
+body {
+    background: #eee url("../images/bg.jpg") no-repeat center;
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+
+.card {
+    margin-top: 40px;
+}
+
+.col-lg-2,
+.navbar {
+    background: rgba(255, 255, 255, .7);
 }
 
 .side-bar {
-    height: calc(100vh - 70px);
+    height: calc(100vh - 56px);
+    padding-top: 30px;
 }
 
 .sideBarImgWrap {
@@ -27,8 +42,8 @@ img {
 .imgWrap .close {
     position: absolute;
     visibility: hidden;
-    top: 5px;
-    left: 5px;
+    top: 8px;
+    left: 8px;
     transition: opacity .25s;
     text-shadow: none;
     outline: none;
@@ -120,27 +135,40 @@ img {
 
 .collageContainer {
     position: relative;
-    max-width: 500px;
+    max-width: 450px;
     margin: auto;
     padding-bottom: 100px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    padding-top: 30px;
 }
 
-.save-collage {
+.save-collage,
+.delete-collage {
     position: absolute;
-    top: 0;
+    top:30px;
     left: -10px;
     transform: translateX(-100%);
+    width: 120px;
+}
+
+.delete-collage {
+    top: 80px;
 }
 
 .alert.alert-success {
-    position: absolute;
-    top: 20%;
-    left: 5%;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, .5);
     font-size: 32px;
     z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .overlayLayout {

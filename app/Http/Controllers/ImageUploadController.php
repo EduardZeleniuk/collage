@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\UploadImage;
 use App\Collage;
 use Image;
+use Zip;
 
 class ImageUploadController extends Controller
 {
@@ -21,10 +22,9 @@ class ImageUploadController extends Controller
         $images = UploadImage::allImages();
         $layouts = Layout::allImages();
         $collages = Collage::allCollages();
+        $isSavedCollages = Collage::where('user_id', Auth::id())->where('is_saved', 0)->get();
 
-        $isSavedCollages = Collage::where('is_saved', 0)->get();
-
-        if($isSavedCollages) {
+        if ($isSavedCollages) {
             $isSavedCollages = $isSavedCollages;
         } else {
             $isSavedCollages = '';
@@ -35,11 +35,11 @@ class ImageUploadController extends Controller
 
     public function imageUploadPost(Request $request)
     {
-        $this->validate($request,[
+        $this->validate($request, [
             'images' => 'required',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
-        if(count($request->images) > 10)
+        if (count($request->images) > 10)
             return back()->withInput()->withErrors('Можно загрузить за раз до 10 фото');
 
         foreach ($request->images as $image) {
@@ -72,111 +72,110 @@ class ImageUploadController extends Controller
 
     public function collageCreate(Request $request, $image, $layout, $pos)
     {
-        if(!file_exists(storage_path('app/public/images/layouts/'. $layout .'.png')) AND !file_exists(storage_path('app/public/images/'. $image)))
-        {
+        if (!file_exists(storage_path('app/public/images/layouts/' . $layout . '.png')) AND !file_exists(storage_path('app/public/images/' . $image))) {
             abort(404);
         }
 
         $layout1 = [
             '1' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 50,
-                'posY'   => 50
+                'width' => 625,
+                'posX' => 50,
+                'posY' => 50
             ],
             '2' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 725,
-                'posY'   => 50
+                'width' => 625,
+                'posX' => 725,
+                'posY' => 50
             ],
             '3' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 725,
-                'posY'   => 725
+                'width' => 625,
+                'posX' => 725,
+                'posY' => 725
             ],
             '4' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 50,
-                'posY'   => 725
+                'width' => 625,
+                'posX' => 50,
+                'posY' => 725
             ]
         ];
         $layout2 = [
             '1' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 50,
-                'posY'   => 50
+                'width' => 625,
+                'posX' => 50,
+                'posY' => 50
             ],
             '2' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 50,
-                'posY'   => 725
+                'width' => 625,
+                'posX' => 50,
+                'posY' => 725
             ],
             '3' => [
                 'height' => 1300,
-                'width'  => 625,
-                'posX'   => 725,
-                'posY'   => 50
+                'width' => 625,
+                'posX' => 725,
+                'posY' => 50
             ]
         ];
         $layout3 = [
             '1' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 50,
-                'posY'   => 50
+                'width' => 625,
+                'posX' => 50,
+                'posY' => 50
             ],
             '2' => [
                 'height' => 625,
-                'width'  => 625,
-                'posX'   => 725,
-                'posY'   => 50
+                'width' => 625,
+                'posX' => 725,
+                'posY' => 50
             ],
             '3' => [
                 'height' => 625,
-                'width'  => 1300,
-                'posX'   => 50,
-                'posY'   => 725
+                'width' => 1300,
+                'posX' => 50,
+                'posY' => 725
             ]
         ];
 
-        if($layout == 'layout1')
+        if ($layout == 'layout1')
             $layoutName = $layout1;
-        elseif($layout == 'layout2')
+        elseif ($layout == 'layout2')
             $layoutName = $layout2;
-        elseif($layout == 'layout3')
+        elseif ($layout == 'layout3')
             $layoutName = $layout3;
 
-        $layoutsWidth  = $layoutName[$pos]['width'];
+        $layoutsWidth = $layoutName[$pos]['width'];
         $layoutsHeight = $layoutName[$pos]['height'];
         $layoutsPosX = $layoutName[$pos]['posX'];
         $layoutsPosY = $layoutName[$pos]['posY'];
 
         $layoutId = Layout::where('image', $layout)->first()->id;
-        $isSaved = Collage::where('is_saved', 0)->where('layout_id', $layoutId)->first();
+        $isSaved = Collage::where('user_id', Auth::id())->where('is_saved', 0)->where('layout_id', $layoutId)->first();
 
-        if($isSaved) {
-            $collageName =  $isSaved->collage;
-            $collagePath = storage_path('app/public/images/collage/'. $isSaved->collage .'.jpeg');
+        if ($isSaved) {
+            $collageName = $isSaved->collage;
+            $collagePath = storage_path('app/public/images/collage/' . $isSaved->collage . '.jpeg');
         } else {
             $collageName = str_random(20);
-            $collagePath = storage_path('app/public/images/layouts/'. $layout .'.png');
+            $collagePath = storage_path('app/public/images/layouts/' . $layout . '.png');
         }
 
 
         $collage = Image::make($collagePath);
-        $img = Image::make(storage_path('app/public/images/'. $image));
+        $img = Image::make(storage_path('app/public/images/' . $image));
         $img->fit($layoutsWidth, $layoutsHeight);
         $collage->insert($img, 'top-left', $layoutsPosX, $layoutsPosY);
 
-        $collage->save(storage_path('app/public/images/collage/'. $collageName .'.jpeg'));
+        $collage->save(storage_path('app/public/images/collage/' . $collageName . '.jpeg'));
 
 
-        if(!$isSaved) {
+        if (!$isSaved) {
             $collageDb = new Collage;
             $collageDb->user_id = Auth::id();
             $collageDb->layout_id = $layoutId;
@@ -184,13 +183,16 @@ class ImageUploadController extends Controller
             $collageDb->save();
         }
 
-        return back();
+        return back()->with('layoutNumb', $layout);
     }
 
     public function collageSave($collageId)
     {
         $collageDb = Collage::where('id', $collageId)->first();
-        if(empty($collageDb))
+        if ($collageDb->user_id != Auth::id())
+            abort('404');
+
+        if (empty($collageDb))
             return back()->with('errors', 'Ошибка при сохренении');
 
         $collageDb->is_saved = 1;
@@ -198,4 +200,40 @@ class ImageUploadController extends Controller
 
         return back()->with('success', 'Сохранено');
     }
+
+    public function collageDelete($id)
+    {
+        Collage::deletedCollage($id);
+
+        return back();
+    }
+
+    public function collageDeleteAll()
+    {
+        Collage::deletedCollageAll();
+
+        return back();
+    }
+
+    public function collageDownload()
+    {
+        $collages = Collage::where('user_id', Auth::id())->where('is_saved', 1)->get()->toArray();
+        if (!$collages)
+            return back();
+
+        $collagePath = [];
+        foreach ($collages as $collage) {
+            $collagePath[] = storage_path('app/public/images/collage/' . $collage['collage'] . '.jpeg');
+        }
+
+        $zipName = str_random(20);
+        $zipPath = storage_path('app/public/images/download/' . $zipName . '.zip');
+        $zip = Zip::create($zipPath);
+        $zip->add($collagePath);
+        $zip->close();
+
+        return response()->download($zipPath);
+
+    }
+
 }

@@ -7,39 +7,31 @@
 @if ($layouts)
     @foreach($layouts as $layout)
         <div id="{{ $layout['image'] }}" data-pos="{{ $layout['pos'] }}"
-             class="collageContainer @if($layout['image'] != 'layout1') hide @endif">
-            <button type="button" class="save-collage btn btn-success">Сохранить</button>
+             @if(session()->has('layoutNumb'))
+                class="collageContainer @if($layout['image'] != session()->get('layoutNumb') ) hide @endif">
+            @else
+                class="collageContainer @if($layout['image'] != 'layout1' ) hide @endif">
+            @endif
+            @if($isSavedCollages)
+                @foreach($isSavedCollages as $isSavedCollage)
+                    @if($isSavedCollage['layout_id'] == $layout['id'])
+                        <button type="button" class="save-collage btn btn-success btn-sm">Сохранить</button>
+                        <button type="button" class="delete-collage btn btn-danger btn-sm">Начать с начала</button>
+                    @endif
+                @endforeach
+            @endif
 
             @forelse($isSavedCollages as $isSavedCollage)
                 @if($isSavedCollage['layout_id'] == $layout['id'])
-                    <img data-collageid="{{  $isSavedCollage['id'] }}" src="{{ url('storage/images/collage/'. $isSavedCollage['collage'] . '.jpeg') }}" alt="">
+                    <a href="{{ url('storage/images/collage/'. $isSavedCollage['collage'] . '.jpeg') }}" data-fancybox="{{ $layout['image'] }}">
+                        <img data-collageid="{{  $isSavedCollage['id'] }}" src="{{ url('storage/images/collage/'. $isSavedCollage['collage'] . '.jpeg') }}" alt="">
+                    </a>
                 @endif
             @empty
-                <img src="{{ url('storage/images/layouts/'. $layout['image'] . '.png') }}" alt="">
+                <a href="{{ url('storage/images/layouts/'. $layout['image'] . '.png') }}" data-fancybox="{{ $layout['image'] }}">
+                    <img src="{{ url('storage/images/layouts/'. $layout['image'] . '.png') }}" alt="">
+                </a>
             @endforelse
-
-
-            @if($layout['image'] == 'layout1')
-                <div class="overlayLayout">
-                    <div class="size-50x50 left"></div>
-                    <div class="size-50x50 left"></div>
-                    <div class="size-50x50 left"></div>
-                    <div class="size-50x50 left"></div>
-                </div>
-            @elseif($layout['image'] == 'layout2')
-                <div class="overlayLayout">
-                    <div class="size-50x50 left"></div>
-                    <div class="size-50x100 right"></div>
-                    <div class="size-50x50 left"></div>
-                </div>
-            @elseif($layout['image'] == 'layout3')
-                <div class="overlayLayout">
-                    <div class="size-50x50 left"></div>
-                    <div class="size-50x50 left"></div>
-                    <div class="size-100x50 left"></div>
-                </div>
-            @endif
-
         </div>
     @endforeach
 

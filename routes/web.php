@@ -20,6 +20,9 @@ Route::get('image-delete/{id}','ImageUploadController@imageDelete');
 Route::get('image-delete-all','ImageUploadController@imageDeleteAll');
 Route::get('create/{imgId}/{collage}/{position}','ImageUploadController@collageCreate');
 Route::get('collage-save/{collageId}','ImageUploadController@collageSave');
+Route::get('collage-delete/{collageId}','ImageUploadController@collageDelete');
+Route::get('collage-delete-all','ImageUploadController@collageDeleteAll');
+Route::get('download', 'ImageUploadController@collageDownload');
 Auth::routes();
 
 

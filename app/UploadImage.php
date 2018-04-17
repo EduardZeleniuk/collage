@@ -25,6 +25,9 @@ class UploadImage extends Model
 
     public static function deletedImage($id){
         $image = UploadImage::where('id', $id)->first();
+        if($image->user_id != Auth::id())
+            abort('404');
+
         Storage::delete('public/images/'.$image->image);
         UploadImage::where('id', $id)->delete();
     }
