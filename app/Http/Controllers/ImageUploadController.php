@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\UploadImage;
 use App\Collage;
+use App\LayoutProp;
 use Image;
 use Zip;
 
@@ -76,84 +77,91 @@ class ImageUploadController extends Controller
             abort(404);
         }
 
-        $layout1 = [
-            '1' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 50,
-                'posY' => 50
-            ],
-            '2' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 725,
-                'posY' => 50
-            ],
-            '3' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 725,
-                'posY' => 725
-            ],
-            '4' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 50,
-                'posY' => 725
-            ]
-        ];
-        $layout2 = [
-            '1' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 50,
-                'posY' => 50
-            ],
-            '2' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 50,
-                'posY' => 725
-            ],
-            '3' => [
-                'height' => 1300,
-                'width' => 625,
-                'posX' => 725,
-                'posY' => 50
-            ]
-        ];
-        $layout3 = [
-            '1' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 50,
-                'posY' => 50
-            ],
-            '2' => [
-                'height' => 625,
-                'width' => 625,
-                'posX' => 725,
-                'posY' => 50
-            ],
-            '3' => [
-                'height' => 625,
-                'width' => 1300,
-                'posX' => 50,
-                'posY' => 725
-            ]
-        ];
+//        $layout1 = [
+//            '1' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 50,
+//                'posY' => 50
+//            ],
+//            '2' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 725,
+//                'posY' => 50
+//            ],
+//            '3' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 725,
+//                'posY' => 725
+//            ],
+//            '4' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 50,
+//                'posY' => 725
+//            ]
+//        ];
+//        $layout2 = [
+//            '1' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 50,
+//                'posY' => 50
+//            ],
+//            '2' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 50,
+//                'posY' => 725
+//            ],
+//            '3' => [
+//                'height' => 1300,
+//                'width' => 625,
+//                'posX' => 725,
+//                'posY' => 50
+//            ]
+//        ];
+//        $layout3 = [
+//            '1' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 50,
+//                'posY' => 50
+//            ],
+//            '2' => [
+//                'height' => 625,
+//                'width' => 625,
+//                'posX' => 725,
+//                'posY' => 50
+//            ],
+//            '3' => [
+//                'height' => 625,
+//                'width' => 1300,
+//                'posX' => 50,
+//                'posY' => 725
+//            ]
+//        ];
+//
+//        if ($layout == 'layout1')
+//            $layoutName = $layout1;
+//        elseif ($layout == 'layout2')
+//            $layoutName = $layout2;
+//        elseif ($layout == 'layout3')
+//            $layoutName = $layout3;
+//
+//        $layoutsWidth = $layoutName[$pos]['width'];
+//        $layoutsHeight = $layoutName[$pos]['height'];
+//        $layoutsPosX = $layoutName[$pos]['posX'];
+//        $layoutsPosY = $layoutName[$pos]['posY'];
 
-        if ($layout == 'layout1')
-            $layoutName = $layout1;
-        elseif ($layout == 'layout2')
-            $layoutName = $layout2;
-        elseif ($layout == 'layout3')
-            $layoutName = $layout3;
 
-        $layoutsWidth = $layoutName[$pos]['width'];
-        $layoutsHeight = $layoutName[$pos]['height'];
-        $layoutsPosX = $layoutName[$pos]['posX'];
-        $layoutsPosY = $layoutName[$pos]['posY'];
+        $layoutProp = LayoutProp::where('layout', $layout)->where('position', $pos)->get()->first();
+        $layoutsWidth = $layoutProp->width;
+        $layoutsHeight = $layoutProp->height;
+        $layoutsPosX = $layoutProp->posx;
+        $layoutsPosY = $layoutProp->posy;
 
         $layoutId = Layout::where('image', $layout)->first()->id;
         $isSaved = Collage::where('user_id', Auth::id())->where('is_saved', 0)->where('layout_id', $layoutId)->first();
@@ -233,7 +241,5 @@ class ImageUploadController extends Controller
         $zip->close();
 
         return response()->download($zipPath);
-
     }
-
 }

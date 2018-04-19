@@ -21,17 +21,28 @@
                 @endforeach
             @endif
 
-            @forelse($isSavedCollages as $isSavedCollage)
-                @if($isSavedCollage['layout_id'] == $layout['id'])
-                    <a href="{{ url('storage/images/collage/'. $isSavedCollage['collage'] . '.jpeg') }}" data-fancybox="{{ $layout['image'] }}">
-                        <img data-collageid="{{  $isSavedCollage['id'] }}" src="{{ url('storage/images/collage/'. $isSavedCollage['collage'] . '.jpeg') }}" alt="">
+            <?php $collageFlag = 0; ?>
+
+            @if($isSavedCollages)
+                @foreach($isSavedCollages as $isSavedCollage)
+                    @if($isSavedCollage['layout_id'] == $layout['id'])
+                        <?php $collageFlag = 1; ?>
+                        <a href="{{ url('storage/images/collage/'. $isSavedCollage['collage'] . '.jpeg') }}" data-fancybox="{{ $layout['image'] }}">
+                            <img data-collageid="{{  $isSavedCollage['id'] }}" src="{{ url('storage/images/collage/'. $isSavedCollage['collage'] . '.jpeg') }}" alt="">
+                        </a>
+                    @endif
+                @endforeach
+                @if($collageFlag == 0)
+                    <a href="{{ url('storage/images/layouts/'. $layout['image'] . '.png') }}" data-fancybox="{{ $layout['image'] }}">
+                        <img src="{{ url('storage/images/layouts/'. $layout['image'] . '.png') }}" alt="">
                     </a>
                 @endif
-            @empty
+            @else
                 <a href="{{ url('storage/images/layouts/'. $layout['image'] . '.png') }}" data-fancybox="{{ $layout['image'] }}">
                     <img src="{{ url('storage/images/layouts/'. $layout['image'] . '.png') }}" alt="">
                 </a>
-            @endforelse
+            @endif
+
         </div>
     @endforeach
 
